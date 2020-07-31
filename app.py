@@ -1,6 +1,7 @@
 from bottle import route, run, hook, response, request
 
 import csv, json, os
+import markdown
 from utils import syllySplit, processSyllables, generateNames
 
 syllables = []
@@ -17,17 +18,30 @@ _num_names_key = 'numNames';
 
 @route('/')
 def help():
-    return ''
+    with open('./README.md') as file:
+        return markdown.markdown(file.read())
 
 @route('/names', method=['POST', 'GET'])
 def names():
+    """ /names
+        Returns a variable number of names, or 1 if GET.
+
+        Allowed Methods: POST, GET
+
+        POST requests should contain a json body with the following keys:
+        - numNames : number 
+            The number of names to generate
+        - numSyllablesPerName : number
+            The number of syllables per name to use when generating the names
+    """
+
     if request.method is 'GET' or request.json is None:
         return json.dumps({
             'names': generateNames(processedNames),
         })
     else:
         data = request.json
-        errors = []
+        errors = ['GET / for docs']
         if not _num_names_key in data:
             errors.append('Please provide numeric value for key numNames')
         if not _num_syllables_key in data:
@@ -42,14 +56,23 @@ def names():
 
 @route('/name', method=['POST', 'GET'])
 def name():
+    """ /name
+        Returns a single name.
+
+        Allowed Methods: POST, GET
+
+        POST requests should contain a json body with the following key:
+        - numSyllables : number
+            The number of syllables to include in the name
+    """
     if request.method is 'GET' or request.json is None:
         return generateNames(processedNames)
     else:
         data = request.json
-        if not 'numSyllablesPerName' in data:
+        if not 'numSyllables' in data:
             response.status = 400
-            return 'Please provide numberic value for key numSyllablesPerName'
-        return generateNames(processedNames, 1, data['numSyllablesPerName'])[0]
+            return 'Please provide numberic value for key numSyllables. GET / for docs'
+        return generateNames(processedNames, 1, data['numSyllables'])[0]
 
 @hook('after_request')
 def enable_cors():
