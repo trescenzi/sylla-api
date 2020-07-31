@@ -46,7 +46,7 @@ def names():
             errors.append('Please provide numeric value for key numNames')
         if not _num_syllables_key in data:
             errors.append('Please provide numberic value for key numSyllablesPerName')
-        if len(errors) is not 0:
+        if len(errors) is not 1:
             response.status = 400
             return '\n'.join(errors)
 
