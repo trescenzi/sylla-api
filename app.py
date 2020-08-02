@@ -24,23 +24,25 @@ def help():
 @route('/names', method=['POST', 'GET'])
 def names():
     """ /names
-        Returns a variable number of names, or 1 if GET.
+        Returns a variable number of names.
 
         Allowed Methods: POST, GET
 
-        POST requests should contain a json body with the following keys:
+        Params are as follows:
         - numNames : number 
             The number of names to generate
         - numSyllablesPerName : number
             The number of syllables per name to use when generating the names
+
+        GET requests should provide them as query params, POST as a json body.
     """
 
-    if request.method is 'GET' or request.json is None:
+    if request.query is None and request.json is None:
         return json.dumps({
             'names': generateNames(processedNames),
         })
     else:
-        data = request.json
+        data = request.json or request.query
         errors = ['GET / for docs']
         if not _num_names_key in data:
             errors.append('Please provide numeric value for key numNames')
@@ -51,7 +53,7 @@ def names():
             return '\n'.join(errors)
 
         return json.dumps({
-            'names': generateNames(processedNames, data['numNames'], data['numSyllablesPerName']),
+            'names': generateNames(processedNames, int(data['numNames']), int(data['numSyllablesPerName'])),
         })
 
 @route('/name', method=['POST', 'GET'])
@@ -61,18 +63,20 @@ def name():
 
         Allowed Methods: POST, GET
 
-        POST requests should contain a json body with the following key:
+        Params are as follows:
         - numSyllables : number
             The number of syllables to include in the name
+        
+        GET requests should provide them as query params, POST as a json body.
     """
-    if request.method is 'GET' or request.json is None:
+    if request.query is None and request.json is None:
         return generateNames(processedNames)
     else:
-        data = request.json
+        data = request.json or request.query
         if not 'numSyllables' in data:
             response.status = 400
             return 'Please provide numberic value for key numSyllables. GET / for docs'
-        return generateNames(processedNames, 1, data['numSyllables'])[0]
+        return generateNames(processedNames, 1, int(data['numSyllables']))[0]
 
 @hook('after_request')
 def enable_cors():

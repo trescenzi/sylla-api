@@ -8,12 +8,17 @@ The name generation is accessible via a simple api. The api is currently hosted 
 
 ### /names
 
+Returns a variable number of names.
+
 Allowed Methods: POST, GET
 
-Returns a JSON array of randomly generated names, or 1 if a GET request. POST requests are expected to have JSON body with the following keys:
+Params are as follows:
+- numNames : number 
+    The number of names to generate
+- numSyllablesPerName : number
+    The number of syllables per name to use when generating the names
 
-- **numNames** <number> : the number of names to return
-- **numSyllablesPerName** <number> : the number of syllables to use per name
+GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
@@ -21,11 +26,15 @@ Returns a JSON array of randomly generated names, or 1 if a GET request. POST re
 
 ### /name
 
+Returns a single name.
+
 Allowed Methods: POST, GET
 
-Returns a randomly generated name. POST requests are expected to have JSON body with the following key:
+Params are as follows:
+- numSyllables : number
+    The number of syllables to include in the name
 
-- **numSyllables** <number> : the number of syllables to use per name
+GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
