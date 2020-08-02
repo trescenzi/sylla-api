@@ -37,24 +37,23 @@ def names():
         GET requests should provide them as query params, POST as a json body.
     """
 
-    if request.query is None and request.json is None:
+    data = request.json or request.query
+    try:
         return json.dumps({
-            'names': generateNames(processedNames),
+            'names': generateNames(processedNames,
+                                   int(data[_num_names_key]) if _num_names_key in data else 1 , 
+                                   int(data[_num_syllables_key]) if _num_syllables_key in data else 2),
         })
-    else:
-        data = request.json or request.query
+    except:
         errors = ['GET / for docs']
         if not _num_names_key in data:
             errors.append('Please provide numeric value for key numNames')
         if not _num_syllables_key in data:
             errors.append('Please provide numberic value for key numSyllablesPerName')
-        if len(errors) is not 1:
-            response.status = 400
-            return '\n'.join(errors)
-
-        return json.dumps({
-            'names': generateNames(processedNames, int(data['numNames']), int(data['numSyllablesPerName'])),
-        })
+        if not _num_names_key in data and not _num_syllables_key in data:
+            errors.append('An unknown error has occured')
+        response.status = 400
+        return ''.join(errors)
 
 @route('/name', method=['POST', 'GET'])
 def name():
@@ -69,14 +68,15 @@ def name():
         
         GET requests should provide them as query params, POST as a json body.
     """
-    if request.query is None and request.json is None:
-        return generateNames(processedNames)
-    else:
-        data = request.json or request.query
+    data = request.json or request.query
+    try:
+        return generateNames(processedNames, 1, int(data['numSyllables']) if 'numSyllables' in data else 2)[0]
+    except:
+        response.status = 400
         if not 'numSyllables' in data:
-            response.status = 400
             return 'Please provide numberic value for key numSyllables. GET / for docs'
-        return generateNames(processedNames, 1, int(data['numSyllables']))[0]
+        else:
+            return 'An unknown error has occured. GET / for docs'
 
 @hook('after_request')
 def enable_cors():
