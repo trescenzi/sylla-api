@@ -17,6 +17,9 @@ Params are as follows:
     The number of names to generate
 - numSyllablesPerName : number
     The number of syllables per name to use when generating the names
+- nameSeeds : str | list
+    A list of names to use as seeds for generating the new name. If
+    provided as a string it can be space or comma seperated.
 
 GET requests should provide them as query params, POST as a json body.
 
@@ -33,6 +36,9 @@ Allowed Methods: POST, GET
 Params are as follows:
 - numSyllables : number
     The number of syllables to include in the name
+- nameSeeds : str | list
+    A list of names to use as seeds for generating the new name. If
+    provided as a string it can be space or comma seperated.
 
 GET requests should provide them as query params, POST as a json body.
 

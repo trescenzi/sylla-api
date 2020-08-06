@@ -15,6 +15,18 @@ _allow_methods = 'GET, POST, OPTIONS'
 _allow_headers = 'Authorization, Origin, Accept, Content-Type, X-Requested-With'
 _num_syllables_key = 'numSyllablesPerName'
 _num_names_key = 'numNames';
+_name_seeds_key = 'nameSeeds';
+
+def processNameSeeds(nameSeeds):
+    if not isinstance(nameSeeds, list):
+        nameSeeds = nameSeeds.strip()
+        if ',' in nameSeeds:
+            print('splitting on commas')
+            nameSeeds = nameSeeds.split(',')
+        else:
+            nameSeeds = nameSeeds.split()
+    syllables = [syllable for name in nameSeeds for syllable in syllySplit(name)]
+    return processSyllables(syllables)
 
 @route('/')
 def help():
@@ -33,14 +45,18 @@ def names():
             The number of names to generate
         - numSyllablesPerName : number
             The number of syllables per name to use when generating the names
+        - nameSeeds : str | list
+            A list of names to use as seeds for generating the new name. If
+            provided as a string it can be space or comma seperated.
 
         GET requests should provide them as query params, POST as a json body.
     """
 
     data = request.json or request.query
+    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedNames
     try:
         return json.dumps({
-            'names': generateNames(processedNames,
+            'names': generateNames(nameList,
                                    int(data[_num_names_key]) if _num_names_key in data else 1 , 
                                    int(data[_num_syllables_key]) if _num_syllables_key in data else 2),
         })
@@ -65,12 +81,16 @@ def name():
         Params are as follows:
         - numSyllables : number
             The number of syllables to include in the name
+        - nameSeeds : str | list
+            A list of names to use as seeds for generating the new name. If
+            provided as a string it can be space or comma seperated.
         
         GET requests should provide them as query params, POST as a json body.
     """
     data = request.json or request.query
+    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedNames
     try:
-        return generateNames(processedNames, 1, int(data['numSyllables']) if 'numSyllables' in data else 2)[0]
+        return generateNames(nameList, 1, int(data['numSyllables']) if 'numSyllables' in data else 2)[0]
     except:
         response.status = 400
         if not 'numSyllables' in data:
