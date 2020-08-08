@@ -30,7 +30,7 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"numSyllablesPerName": 4, "numNames": 10}' sylla-api.herokuapp.com`
+`curl -H "Content-Type: application/json" -X POST -d '{"numSyllablesPerName": 4, "numNames": 10}' sylla-api.herokuapp.com/names`
 
 ### /name
 
@@ -49,7 +49,7 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"numSyllables: 10}' sylla-api.herokuapp.com`
+`curl -H "Content-Type: application/json" -X POST -d '{"numSyllables: 10}' sylla-api.herokuapp.com/name`
 
 ### /markov/names
 
@@ -86,4 +86,4 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"minSyllablesPerName": 1, "maxSyllablesPerName": 3, "numNames": 20}' sylla-api.herokuapp.com`
+`curl -H "Content-Type: application/json" -X POST -d '{"minSyllablesPerName": 1, "maxSyllablesPerName": 3, "numNames": 20}' sylla-api.herokuapp.com/markov/names`
