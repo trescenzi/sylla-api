@@ -1,14 +1,16 @@
 from bottle import route, run, hook, response, request
 
-import csv, json, os
+import csv, json, os, sys
 import markdown
-from utils import syllySplit, processSyllables, generateNames
+from utils import syllySplit, processSyllables, generateNames, SyllaMarkov
 
 syllables = []
 with open('./names.txt') as file:
-    syllables = [syllable for name in file.readlines() if len(syllySplit(name)) > 1 for syllable in syllySplit(name)]
+    names = [name.strip().lower() for name in file.readlines()];
+    syllables = [syllable for name in names if len(syllySplit(name)) > 1 for syllable in syllySplit(name)];
 
-processedNames = processSyllables(syllables)
+processedNames = processSyllables(syllables);
+englishMarkovNames = SyllaMarkov(names);
 
 _allow_origin = '*'
 _allow_methods = 'GET, POST, OPTIONS'
@@ -28,10 +30,72 @@ def processNameSeeds(nameSeeds):
     syllables = [syllable for name in nameSeeds for syllable in syllySplit(name)]
     return processSyllables(syllables)
 
+def generateMarkovChainForNameSeeds(nameSeeds):
+    if not isinstance(nameSeeds, list):
+        nameSeeds = nameSeeds.strip()
+        if ',' in nameSeeds:
+            print('splitting on commas')
+            nameSeeds = nameSeeds.split(',')
+        else:
+            nameSeeds = nameSeeds.split()
+    return SyllaMarkov(nameSeeds);
+
 @route('/')
 def help():
     with open('./README.md') as file:
         return markdown.markdown(file.read())
+
+@route ('/markov/names', method=['POST', 'GET'])
+def markovNames():
+    """ /markov/names
+        Returns a variable number of names generated using a Markov chain based
+        on the seed.
+
+        Allowed Methods: POST, GET
+
+        Params are as follows:
+        - numNames : number 
+            The number of names to generate.
+            NOTE: You are not guarenteed to get this number of names back. In order
+            to prevent excessive computation only 15 attempts are made per name
+            to generate a name that fits within the parameters of the markov
+            chain for likeness. In practice with the default seed names ~1% of
+            attempts fail with a 2 syllable min and a 4 syllable max.
+        - maxSyllablesPerName : number
+            The maximum number of syllables to include in the generated names.
+            Default 4
+        - minSyllablesPerName : number
+            The minimum number of syllables to include in the generated names.
+            Default 2
+        - nameSeeds : str | list
+            A list of names to use as seeds for generating the new name. If
+            provided as a string it can be space or comma seperated.
+
+        GET requests should provide them as query params, POST as a json body.
+
+        Response - JSON with keys:
+        - names : array
+            The names generated
+        - namesGenerated : number
+            The number of names generated
+    """
+    data = request.json or request.query
+    chain = generateMarkovChainForNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else englishMarkovNames
+    min = int(data.get('minSyllablesPerName', 2));
+    max = int(data.get('maxSyllablesPerName', 4));
+    nameRange = range(data.get(_num_names_key, 10)); 
+    try:
+        names = list(filter(lambda name: name is not None,
+                            [chain.make_name(max, min) for _ in nameRange]))
+        return json.dumps({
+            'names': names,
+            'namesGenerated': len(names)
+        })
+    except:
+        error = sys.exc_info()[0];
+        response.status = 400
+        return ''.join([error, 'GET / for docs']);
+
 
 @route('/names', method=['POST', 'GET'])
 def names():
