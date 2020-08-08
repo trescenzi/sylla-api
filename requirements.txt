@@ -1,4 +1,6 @@
 bottle==0.12.18
 importlib-metadata==1.7.0
 Markdown==3.2.2
+markovify==0.8.3
+Unidecode==1.1.1
 zipp==3.1.0
