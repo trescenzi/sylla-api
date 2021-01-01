@@ -31,14 +31,13 @@ def generateNames(data, numNames = 1, numSyllables = 2):
     numVowels = sourceSyllables['numVowels']
     numTotalSyllables = numConsonants + numVowels
 
-    startWithConsonant = randint(0,100) < data['consonantStartOdds']
-    previousSyllable = choice(consonantStart) if startWithConsonant else choice(vowelStart)
-
     names = []
 
     for j in range(0, numNames):
-        name = []
-        for i in range(0, numSyllables):
+        startWithConsonant = randint(0,100) < data['consonantStartOdds']
+        name = [choice(consonantStart) if startWithConsonant else choice(vowelStart)]
+        for i in range(1, numSyllables):
+            previousSyllable = name[-1]
             if isVowel(previousSyllable[-1]):
                 previousSyllable = choice(consonantStart)
             else:
