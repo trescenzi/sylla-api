@@ -6,26 +6,32 @@ import markovify
 def isVowel(a):
     return a in 'aeiouy'
 
+def startsWithConsonants(words):
+    return [word for word in words if not isVowel(word[0])]
+def startsWithVowels(words):
+    return [word for word in words if isVowel(word[0])]
+
 def processSyllables(sourceSyllables):
-    startsWithConsonants = [syllable for syllable in sourceSyllables if not isVowel(syllable[0])]
-    numConsonants = len(startsWithConsonants)
-    startsWithVowels = [syllable for syllable in sourceSyllables if isVowel(syllable[0])]
-    numVowels = len(startsWithVowels)
+    consonantStart = startsWithConsonants(sourceSyllables)
+    numConsonants = len(consonantStart)
+    vowelStart = startsWithVowels(sourceSyllables)
+    numVowels = len(vowelStart)
     return {
-        'consonantStart': startsWithConsonants,
+        'consonantStart': consonantStart,
         'numConsonants': numConsonants,
-        'vowelStart': startsWithVowels,
+        'vowelStart': vowelStart,
         'numVowels': numVowels,
     }
 
-def generateNames(sourceSyllables, numNames = 1, numSyllables = 2):
+def generateNames(data, numNames = 1, numSyllables = 2):
+    sourceSyllables = data['syllables']
     consonantStart = sourceSyllables['consonantStart']
     numConsonants = sourceSyllables['numConsonants']
     vowelStart = sourceSyllables['vowelStart']
     numVowels = sourceSyllables['numVowels']
     numTotalSyllables = numConsonants + numVowels
 
-    startWithConsonant = randint(0,1) is 0;
+    startWithConsonant = randint(0,100) < data['consonantStartOdds']
     previousSyllable = choice(consonantStart) if startWithConsonant else choice(vowelStart)
 
     names = []

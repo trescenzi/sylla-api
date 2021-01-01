@@ -2,15 +2,22 @@ from bottle import route, run, hook, response, request
 
 import csv, json, os, sys
 import markdown
-from utils import syllySplit, processSyllables, generateNames, SyllaMarkov
+from math import trunc
+from utils import syllySplit, processSyllables, generateNames, SyllaMarkov, startsWithConsonants, startsWithVowels
 
 syllables = []
+englishNames = []
 with open('./names.txt') as file:
     names = [name.strip().lower() for name in file.readlines()];
+    englishNames = names
     syllables = [syllable for name in names if len(syllySplit(name)) > 1 for syllable in syllySplit(name)];
 
-processedNames = processSyllables(syllables);
-englishMarkovNames = SyllaMarkov(names);
+processedEnglishNames = {
+    'syllables': processSyllables(syllables),
+    'consonantStartOdds': trunc(len(startsWithConsonants(englishNames)) / len(englishNames) * 100)
+}
+
+englishMarkovNames = SyllaMarkov(names)
 
 _allow_origin = '*'
 _allow_methods = 'GET, POST, OPTIONS'
@@ -28,7 +35,12 @@ def processNameSeeds(nameSeeds):
         else:
             nameSeeds = nameSeeds.split()
     syllables = [syllable for name in nameSeeds for syllable in syllySplit(name)]
-    return processSyllables(syllables)
+    numNamesStartWithConsonants = len(startsWithConsonants(nameSeeds))
+    percentConsonantStart = numNamesStartWithConsonants / len(nameSeeds)
+    return {
+        'syllables': processSyllables(syllables),
+        'consonantStartOdds': trunc(percentConsonantStart * 100),
+    }
 
 def generateMarkovChainForNameSeeds(nameSeeds):
     if not isinstance(nameSeeds, list):
@@ -117,7 +129,7 @@ def names():
     """
 
     data = request.json or request.query
-    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedNames
+    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedEnglishNames
     try:
         return json.dumps({
             'names': generateNames(nameList,
@@ -152,7 +164,7 @@ def name():
         GET requests should provide them as query params, POST as a json body.
     """
     data = request.json or request.query
-    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedNames
+    nameList = processNameSeeds(data[_name_seeds_key]) if _name_seeds_key in data else processedEnglishNames
     try:
         return generateNames(nameList, 1, int(data['numSyllables']) if 'numSyllables' in data else 2)[0]
     except:
