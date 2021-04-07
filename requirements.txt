@@ -1,4 +1,4 @@
-bottle==0.12.18
+bottle==0.12.19
 importlib-metadata==1.7.0
 Markdown==3.2.2
 markovify==0.8.3
