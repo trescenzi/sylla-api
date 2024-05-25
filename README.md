@@ -9,7 +9,7 @@ Sylla is a simple syllable based random name generator which can generate names 
 
 ## API
 
-The name generation is accessible via a simple api. The api is currently hosted on heroku: https://sylla-api.herokuapp.com/
+The name generation is accessible via a simple api. The api is currently hosted on my home server.
 
 ### /names
 
@@ -30,7 +30,7 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"numSyllablesPerName": 4, "numNames": 10}' sylla-api.herokuapp.com/names`
+`curl -H "Content-Type: application/json" -X POST -d '{"numSyllablesPerName": 4, "numNames": 10}' sylla.tcrez.dev/names`
 
 ### /name
 
@@ -49,7 +49,7 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"numSyllables: 10}' sylla-api.herokuapp.com/name`
+`curl -H "Content-Type: application/json" -X POST -d '{"numSyllables: 10}' sylla.tcrez.dev/name`
 
 ### /markov/names
 
@@ -86,4 +86,4 @@ GET requests should provide them as query params, POST as a json body.
 
 #### Example
 
-`curl -H "Content-Type: application/json" -X POST -d '{"minSyllablesPerName": 1, "maxSyllablesPerName": 3, "numNames": 20}' sylla-api.herokuapp.com/markov/names`
+`curl -H "Content-Type: application/json" -X POST -d '{"minSyllablesPerName": 1, "maxSyllablesPerName": 3, "numNames": 20}' sylla.tcrez.dev/markov/names`

@@ -184,8 +184,5 @@ def enable_cors():
 def options_handler(path = None):
     return
 
-# Get required port, default to 5000.
-port = os.environ.get('PORT', 5000)
-
 # Run the app.
-run(host='0.0.0.0', port=port)
+run(host='0.0.0.0', port=80)
